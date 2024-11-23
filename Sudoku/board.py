@@ -60,6 +60,26 @@ class Board:
                     = self.columns[column][value] = True
         return True
 
+    def is_safe_move(self, row, column, value) -> bool:
+        if self.squares[self.get_square(row, column)][value] \
+                or self.rows[row][value] or self.columns[column][value]:
+            return False
+        return True
+
+    def make_move(self, row, column, value) -> bool:
+        if not self.is_safe_move(row, column, value):
+            return False
+        self.squares[self.get_square(row, column)][value] \
+            = self.rows[row][value] = self.columns[column][value] = True
+        self.board[row][column] = value
+        return True
+
+    def cancel_move(self, row, column):
+        value = self.board[row][column]
+        self.squares[self.get_square(row, column)][value] \
+            = self.rows[row][value] = self.columns[column][value] = False
+        self.board[row][column] = 0
+
     def get_square(self, row: int, column: int) -> int:
         if self.size in [4, 9]:
             sq = int(sqrt(self.size))
@@ -71,7 +91,8 @@ class Board:
         for i in range(self.size):
             board += '|'
             for j in range(self.size):
-                board += f" {self.board[i][j] } {' ' if (j + 1) % self.square_width else '|'}"
+                board += f" {self.board[i][j]
+                             } {' ' if (j + 1) % self.square_width else '|'}"
             if (i + 1) % self.square_height == 0:
                 board += f"\n{" ---" * self.size}\n"
             else:
