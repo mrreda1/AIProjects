@@ -9,20 +9,19 @@ class Knapsack:
     maximum_capacity = 0
     availabe_items: List[Item] = []
 
-    def __init__(self, selected_items: List[bool]):
-        self.__weight = 0
-        self.__value = 0
+    def __init__(self, selected_items):
+        self._weight = 0
+        self._value = 0
         self.selected_items = selected_items[:]
 
-        self.__calculate_weights()
+        self._calculate_weights()
 
-    def __calculate_weights(self):
+    def _calculate_weights(self):
         """Calculate total weight of selected items in the knapsack"""
 
         for i, take in enumerate(self.selected_items):
-            if take:
-                self.__weight += Knapsack.availabe_items[i].weight
-                self.__value += Knapsack.availabe_items[i].value
+            self._weight += Knapsack.availabe_items[i].weight * take
+            self._value += Knapsack.availabe_items[i].value * take
 
     def flip_item(self, index):
         """Take or drop an item in the knapsack"""
@@ -30,19 +29,32 @@ class Knapsack:
         item = Knapsack.availabe_items[index]
         sign = -1 if self.selected_items[index] else 1
 
-        self.__weight += item.weight * sign
-        self.__value += item.value * sign
+        self._weight += item.weight * sign
+        self._value += item.value * sign
         self.selected_items[index] = not self.selected_items[index]
+
+    def change_quantity(self, index, take):
+        """Change how much should i take an item"""
+
+        if index < 0 or take < 0 or index >= Knapsack.n:
+            return
+
+        item = Knapsack.availabe_items[index]
+        quantity = take - self.selected_items[index]
+
+        self._weight += item.weight * quantity
+        self._value += item.value * quantity
+        self.selected_items[index] = take
 
     def get_weight(self):
         """Get total weight"""
 
-        return self.__weight
+        return self._weight
 
     def get_value(self):
         """Get total value"""
 
-        return self.__value
+        return self._value
 
     @staticmethod
     def add_item(value: int, weight: int):
@@ -54,10 +66,11 @@ class Knapsack:
     def __repr__(self) -> str:
         """How the knapsack object should be printed"""
 
-        result = "Taken items: "
+        result = f"Weight: {self._weight}\nValue: {self._value}\nTaken items: "
         for i, take in enumerate(self.selected_items):
-            if take:
+            if take > 1:
+                result += f"{i + 1}({self.selected_items[i]}) "
+            elif take:
                 result += f"{i + 1} "
 
-        result += f"\nWeight: {self.__weight}\nValue: {self.__value}\n"
         return result
